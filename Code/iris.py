@@ -19,6 +19,11 @@ def importIris(filename,slice1, slice2):
         elif row[len(row)-1] == "Iris-virginica":
             data[2,indices[2]] = row[0:4]
             indices[2] +=1
+    
+    #add 1 to end of features 
+    classes, samples, features = data.shape
+    data = np.dstack([data, np.ones([classes, samples, 1])])
+
     ts = data[:,:slice1]
     vs = data[:, slice1:(slice1+slice2)]
     return ts, vs, data
@@ -29,16 +34,21 @@ def sigmoid(zik):
 def trainModel(data, N, lr): #X = data set, N = iterations, lr = alpha = learning rate
 
     classes, samples, features = data.shape
-    
-    W = np.zeros((classes, features))
-    w_0 = np.zeros((classes))
-    t_k = np.zeros((classes, 1))
 
+    #data = np.dstack([data, np.ones([classes, samples, 1])])
+
+
+    W = np.zeros((classes, features))
+    #w_0 = np.zeros((classes))
+    #t_k = np.zeros((classes, 1)) 
+    t_k = np.array([[1,0,0],[0,1,0],[0,0,1]]) # What we want to ajust to get low MSE
     g_k = np.zeros((classes))
     g_k[0] = 1 #remember 1
 
+    MSEset = []
+
     for k in range(N):
-        #1/2 * (g_k-t_k).T*(g_k-t_k) #1/N?
+
         MSE = 0
         gMSE = 0
         for i in range(samples):
@@ -54,9 +64,6 @@ def trainModel(data, N, lr): #X = data set, N = iterations, lr = alpha = learnin
             z_k = np.matmul(W,x_k.T) #+ w_0
             g_k = sigmoid(z_k) 
 
-            t_k = np.array([[1,0,0],[0,1,0],[0,0,1]])
-            
-
             firstFactor = np.multiply((g_k-t_k), g_k)
             secondFactor = (1-g_k)
             #grad =  np.multiply(np.multiply(((g_k-t_k),g_k)),(1-g_k))*x_k.T
@@ -64,17 +71,13 @@ def trainModel(data, N, lr): #X = data set, N = iterations, lr = alpha = learnin
             gwz_k = x_k
 
             gMSE += np.matmul(grad1,  gwz_k)
-            """
-            dg_k_MSE = g_k -t_k
-            dz_k_g = np.multiply(g_k,(1-g_k))
-            dwz_k = (x_k).T
-            dMSE = np.matmul(np.matmul(dg_k_MSE,dz_k_g),dwz_k)"""
-           
-            MSE += 1/2 * np.matmul((g_k-t_k).T,(g_k-t_k))
-            
+
+            MSE += 1/2 * np.multiply((g_k-t_k).T,(g_k-t_k))
+        MSEset.append(MSE)    
 
         W -= lr*gMSE
-    return W
+    MSEset = np.array(MSEset)
+    return W #, MSEset
 
 def classifier(W, test_set): # W must be the already trained matrix
     # Her skal hvert element i testsettet manipuleres med W?
@@ -99,22 +102,19 @@ def calculateAlpha(start, end, n, ts, trainSize):
     alphaSet = np.linspace(start, end, n)
     errorSet = []
 
-
     for a in alphaSet:
         W = trainModel(ts,trainSize, a)
-
         CF, ER = confuMatrix(W, ts) # Bruker training set, burde vi bruke test?
         errorSet.append(ER)
 
     errorSet = np.array(errorSet)
     alpha = np.argmin(errorSet)
     
-
     plt.scatter(alphaSet, errorSet)
     plt.xlabel("alpha")
     plt.ylabel("Error rate")
     plt.show()
-    print(alpha)
+    print("Alpha: ", alpha)
     return errorSet, alpha
 
 def plotHistogram(set, feature):
@@ -127,7 +127,9 @@ def plotHistogram(set, feature):
         #ax.set_ylim((0,13))
     plt.xlabel("%s [cm]" % (featureNames[feature]))
     plt.show()
-       
+
+def removeFeature(set, feature):
+    return np.delete(set, feature, axis = 2)
         
 
 
@@ -140,14 +142,29 @@ print("Verification samples:",vs1.shape)
 #1b
 #calculateAlpha(0.01,0.1,30,ts,1000) # valgt 0.009
 #calculateAlpha(0.001,0.02,30,ts,1000) # valgt 0.009
-"""
-W1 = trainModel(ts1, 1000, 0.009)
+#ts1 = removeFeature(ts1, 1)
+#vs1 = removeFeature(vs1, 1)
+#ts1 = removeFeature(ts1, 0)
+#vs1 = removeFeature(vs1, 0)
+
+
+W1= trainModel(ts1, 1000, 0.009)
 CMts1, ERts1 = confuMatrix(W1,ts1) 
 CMvs1, ERvs1 = confuMatrix(W1,vs1) 
+print("All features")
 print("ts = 30, vs = 20, ts used for training")
-print("Training set error rate: ", ERts1, "\n",CMts1)
-print("Verification set error rate: ", ERvs1, "\n",CMvs1)
-
+print("Training set error rate: ", ERts1)
+#print(CMts1)
+print("Verification set error rate: ", ERvs1)
+#print(CMvs1)
+"""
+plt.plot(MSEset[:,0,0])
+plt.xlabel("Iterations")
+plt.ylabel("MSE")
+plt.title("MSE as a function of itereations with feature 1 removed, alpha = 0.009")
+plt.show()
+"""
+"""
 #1d
 ts2, vs2, data2 = importIris('Code\iris\iris.data', 20, 30)
 
@@ -159,7 +176,43 @@ print("Training set error rate: ", ERts2, "\n",CMts2)
 print("Verification set error rate: ", ERvs2, "\n",CMvs2)
 """
 #2a
-plotHistogram(data1, 0)
-plotHistogram(data1, 1)
-plotHistogram(data1, 2)
-plotHistogram(data1, 3)
+#plotHistogram(data1, 0)
+#plotHistogram(data1, 1)
+#plotHistogram(data1, 2)
+#plotHistogram(data1, 3)
+#
+
+ts1 = removeFeature(ts1, 1)
+vs1 = removeFeature(vs1, 1)
+
+W1 = trainModel(ts1, 1000, 0.009)
+
+CMts1, ERts1 = confuMatrix(W1,ts1) 
+CMvs1, ERvs1 = confuMatrix(W1,vs1) 
+print("\nRemoved feature 1")
+print("Training set error rate: ", ERts1)
+print("Verification set error rate: ", ERvs1)
+
+ts1 = removeFeature(ts1, 0)
+vs1 = removeFeature(vs1, 0)
+
+W1 = trainModel(ts1, 1000, 0.009)
+
+CMts1, ERts1 = confuMatrix(W1,ts1) 
+CMvs1, ERvs1 = confuMatrix(W1,vs1) 
+print("\nRemoved feature 0")
+print("Training set error rate: ", ERts1)
+print("Verification set error rate: ", ERvs1)
+
+ts1 = removeFeature(ts1, 1)
+vs1 = removeFeature(vs1, 1)
+
+W1 = trainModel(ts1, 1000, 0.009)
+
+CMts1, ERts1 = confuMatrix(W1,ts1) 
+CMvs1, ERvs1 = confuMatrix(W1,vs1) 
+print("\nRemoved feature 3")
+print("Training set error rate: ", ERts1)
+print(CMts1)
+print("Verification set error rate: ", ERvs1)
+print(CMvs1)

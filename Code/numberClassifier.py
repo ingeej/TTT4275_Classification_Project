@@ -50,16 +50,16 @@ def eucledianDistance(img1, img2):
 def NNpredictor(test, ref, refLables, trueLables):  # No need for teslabels (not without clustering)
 
     predictedLables = []
-    i = 0
+    #i = 0
     for testPicture in test:
         distance = []  # Distance array, from testpic to all refpics
-        correctLable = trueLables[i]
+        #correctLable = trueLables[i]
         for refPicture in ref:
             distance.append(eucledianDistance(refPicture, testPicture))
        
         testLable = refLables[np.argmin(distance)]  # Index to lowest distance
         predictedLables.append(testLable)  # List with the
-        
+        """
         if correctLable != testLable:
             print("Correct label", correctLable, " predicted lable: ", testLable)
             printNumber(testPicture)
@@ -68,12 +68,13 @@ def NNpredictor(test, ref, refLables, trueLables):  # No need for teslabels (not
         
         
         i+=1
+        """
     return predictedLables
 
 
 def confusionMatrix(test, trueLables, ref, refLables):
     predictedLables = NNpredictor(test, ref, refLables, trueLables)
-    print("actual label: %s,\n   predicted: %s \n" % (trueLables, np.array(predictedLables)))
+    #print("actual label: %s,\n   predicted: %s \n" % (trueLables, np.array(predictedLables)))
     confuMatrix = np.zeros((10, 10))
     for i in range(len(predictedLables)):
         confuMatrix[predictedLables[i], trueLables[i]] += 1
@@ -104,7 +105,7 @@ def differenceImage(img1, img2):
 N = 1000 #number of pictures we want to use in each training 
 M = 1
 
-conMatrix, ER= confusionMatrix(test_x[:50], test_y[:50],  train_x, train_y)
+conMatrix, ER= confusionMatrix(test_x[:10], test_y[:10],  train_x, train_y)
 print(conMatrix, "\n ER: ", ER)
 
 """

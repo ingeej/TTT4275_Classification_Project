@@ -174,7 +174,8 @@ clusterLables = loadFile('clusterLables.npy')
 
 
 
-conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,0)
+conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,7)
+np.set_printoptions(precision=3)
 print(conMatrix)
 print("Error",ER)
 

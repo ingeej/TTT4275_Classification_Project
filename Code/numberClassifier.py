@@ -39,13 +39,10 @@ def printNumber(first_image):
     plt.show()
 
 def eucledianDistance(img1, img2):
-    return np.sum(differenceImage(img1, img2))
-    #diffPic = np.array((28,28))
-    #for row in range(28):
-    #   for pixel in row:
-    #       diffPic[row,pixel] = abs(img1[row, pixel]] - img2[row, pixel])
-    #return diffPic
-    #return np.sum(np.multiply((img1 - img2).T, (img1 - img2)))
+    a = img1-img2 # Since we import uint8, this will give zero for img1[i]-img2[i] < 0
+    b = np.uint8(img1<img2) * 254 + 1 # smart trick
+    return np.sum(a*b)
+
 
 def NNpredictor(test, ref, refLables, trueLables):  # No need for teslabels (not without clustering)
 
@@ -91,11 +88,9 @@ def confusionMatrix(test, testLables, ref, refLables, k=0):
 
 
 def differenceImage(img1, img2):
-    posDiff = img1-img2 # Since we import uint8, this will give zero for img1[i]-img2[i] < 0
-    negDiff = np.uint8(img1<img2) * 254 + 1 # Making array with
-    #negDiff = img2-img1
-    #return posDiff + negDiff 
-    return posDiff * negDiff
+    a = img1-img2 # Since we import uint8, this will give zero for img1[i]-img2[i] < 0
+    b = np.uint8(img1<img2) * 254 + 1 # Making array with
+    return a*b
 
 #def sort()
 
@@ -171,13 +166,17 @@ nClusters = 64 # Number of clusters for each class
 clusterData = loadFile('clusterData.npy')
 clusterLables = loadFile('clusterLables.npy')
 
+printNumber(clusterData[129])
+printNumber(clusterData[140])
+printNumber(clusterData[180])
+printNumber(clusterData[170])
 
 
 
-conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,7)
-np.set_printoptions(precision=3)
-print(conMatrix)
-print("Error",ER)
+#conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,1)
+#np.set_printoptions(precision=3)
+#print(conMatrix)
+#print("Error",ER)
 
 
 #task 2c 

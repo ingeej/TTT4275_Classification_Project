@@ -110,7 +110,7 @@ def calculateAlpha(start, end, n, ts, trainSize):
     errorSet = np.array(errorSet)
     alpha = np.argmin(errorSet)
     
-    plt.scatter(alphaSet, errorSet)
+    plt.plot(alphaSet, errorSet)
     plt.xlabel("alpha")
     plt.ylabel("Error rate")
     plt.show()
@@ -128,6 +128,25 @@ def plotHistogram(set, feature):
     plt.xlabel("%s [cm]" % (featureNames[feature]))
     plt.show()
 
+def plotHistogramAll(set):
+    bins = np.arange(0, 8, 1/7)
+    featureNames = ["Sepal length", "Sepal Width", "Petal Length", "Petal Width"]
+    fig, axs = plt.subplots(2,2)
+
+    for (i, ax) in enumerate(axs.flat):
+        
+        ax.hist(set[0,:,i].tolist(),bins=bins, alpha=0.6,)
+        ax.hist(set[1,:,i].tolist(),bins=bins, alpha=0.6)
+        ax.hist(set[2,:,i].tolist(),bins=bins, alpha=0.6)
+
+        ax.set_xlabel("%s [cm]" % (featureNames[i]))
+        
+        #ax.set_ylabel("Feature %d" %(i))
+        #ax.set_ylim((0,13))
+    plt.tight_layout()
+    
+    plt.show()
+
 def removeFeature(set, feature):
     return np.delete(set, feature, axis = 2)
         
@@ -140,48 +159,52 @@ print("Training samples:",ts1.shape)
 print("Verification samples:",vs1.shape)
 
 #1b
-#calculateAlpha(0.01,0.1,30,ts,1000) # valgt 0.009
-#calculateAlpha(0.001,0.02,30,ts,1000) # valgt 0.009
+#calculateAlpha(0.01,0.1,30,ts1,1000) # valgt 0.009
+#calculateAlpha(0.0001,0.05,30,ts1,500) # valgt 0.009
 #ts1 = removeFeature(ts1, 1)
 #vs1 = removeFeature(vs1, 1)
 #ts1 = removeFeature(ts1, 0)
 #vs1 = removeFeature(vs1, 0)
 
-
+#1c
+"""
 W1= trainModel(ts1, 1000, 0.009)
 CMts1, ERts1 = confuMatrix(W1,ts1) 
 CMvs1, ERvs1 = confuMatrix(W1,vs1) 
 print("All features")
 print("ts = 30, vs = 20, ts used for training")
 print("Training set error rate: ", ERts1)
-#print(CMts1)
+print(CMts1)
 print("Verification set error rate: ", ERvs1)
-#print(CMvs1)
-"""
+print(CMvs1)
+
+
 plt.plot(MSEset[:,0,0])
 plt.xlabel("Iterations")
 plt.ylabel("MSE")
 plt.title("MSE as a function of itereations with feature 1 removed, alpha = 0.009")
 plt.show()
-"""
-"""
-#1d
-ts2, vs2, data2 = importIris('Code\iris\iris.data', 20, 30)
 
-W2 = trainModel(vs2, 1000, 0.009)
+#1d
+vs2, ts2, data2 = importIris('Code\iris\iris.data', 20, 30)
+
+W2 = trainModel(ts2, 1000, 0.009)
 CMts2, ERts2 = confuMatrix(W2,ts2) 
 CMvs2, ERvs2 = confuMatrix(W2,vs2) 
-print("\nts = 20, vs = 30, vs used for training")
+print("\nts = 20, vs = 30, last 30 used for training")
 print("Training set error rate: ", ERts2, "\n",CMts2)
 print("Verification set error rate: ", ERvs2, "\n",CMvs2)
+
 """
+
 #2a
+plotHistogramAll(data1)
 #plotHistogram(data1, 0)
 #plotHistogram(data1, 1)
 #plotHistogram(data1, 2)
 #plotHistogram(data1, 3)
 #
-
+"""
 ts1 = removeFeature(ts1, 1)
 vs1 = removeFeature(vs1, 1)
 
@@ -191,7 +214,9 @@ CMts1, ERts1 = confuMatrix(W1,ts1)
 CMvs1, ERvs1 = confuMatrix(W1,vs1) 
 print("\nRemoved feature 1")
 print("Training set error rate: ", ERts1)
+print(CMts1)
 print("Verification set error rate: ", ERvs1)
+
 
 ts1 = removeFeature(ts1, 0)
 vs1 = removeFeature(vs1, 0)
@@ -202,7 +227,9 @@ CMts1, ERts1 = confuMatrix(W1,ts1)
 CMvs1, ERvs1 = confuMatrix(W1,vs1) 
 print("\nRemoved feature 0")
 print("Training set error rate: ", ERts1)
+print(CMts1)
 print("Verification set error rate: ", ERvs1)
+print(CMvs1)
 
 ts1 = removeFeature(ts1, 1)
 vs1 = removeFeature(vs1, 1)
@@ -216,3 +243,4 @@ print("Training set error rate: ", ERts1)
 print(CMts1)
 print("Verification set error rate: ", ERvs1)
 print(CMvs1)
+"""

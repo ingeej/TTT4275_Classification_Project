@@ -135,7 +135,7 @@ def plotHistogramAll(set):
 
     for (i, ax) in enumerate(axs.flat):
         
-        ax.hist(set[0,:,i].tolist(),bins=bins, alpha=0.6,)
+        ax.hist(set[0,:,i].tolist(),bins=bins, alpha=0.6)
         ax.hist(set[1,:,i].tolist(),bins=bins, alpha=0.6)
         ax.hist(set[2,:,i].tolist(),bins=bins, alpha=0.6)
 
@@ -167,7 +167,7 @@ print("Verification samples:",vs1.shape)
 #vs1 = removeFeature(vs1, 0)
 
 #1c
-"""
+
 W1= trainModel(ts1, 1000, 0.009)
 CMts1, ERts1 = confuMatrix(W1,ts1) 
 CMvs1, ERvs1 = confuMatrix(W1,vs1) 
@@ -177,7 +177,7 @@ print("Training set error rate: ", ERts1)
 print(CMts1)
 print("Verification set error rate: ", ERvs1)
 print(CMvs1)
-
+"""
 
 plt.plot(MSEset[:,0,0])
 plt.xlabel("Iterations")
@@ -198,15 +198,15 @@ print("Verification set error rate: ", ERvs2, "\n",CMvs2)
 """
 
 #2a
-plotHistogramAll(data1)
+#plotHistogramAll(data1)
 #plotHistogram(data1, 0)
 #plotHistogram(data1, 1)
 #plotHistogram(data1, 2)
 #plotHistogram(data1, 3)
 #
-"""
-ts1 = removeFeature(ts1, 1)
-vs1 = removeFeature(vs1, 1)
+
+ts1 = removeFeature(ts1, 0)
+vs1 = removeFeature(vs1, 0)
 
 W1 = trainModel(ts1, 1000, 0.009)
 
@@ -231,8 +231,8 @@ print(CMts1)
 print("Verification set error rate: ", ERvs1)
 print(CMvs1)
 
-ts1 = removeFeature(ts1, 1)
-vs1 = removeFeature(vs1, 1)
+ts1 = removeFeature(ts1, 0)
+vs1 = removeFeature(vs1, 0)
 
 W1 = trainModel(ts1, 1000, 0.009)
 
@@ -243,4 +243,3 @@ print("Training set error rate: ", ERts1)
 print(CMts1)
 print("Verification set error rate: ", ERvs1)
 print(CMvs1)
-"""

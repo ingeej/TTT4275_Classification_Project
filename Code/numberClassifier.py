@@ -1,36 +1,8 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
 from sklearn.cluster import KMeans
 import time
-from scipy import stats
-from multiprocessing import Process
-t1 = time.time()
-
-
-
-def importBIN():
-    nSamples = 60000
-    nTests = 1000
-
-    with open('Code/mnist/train_images.bin','rb') as binaryFile:
-        imgB = binaryFile.read()
-    with open('Code/mnist/train_labels.bin','rb') as binaryFile:
-        lbB = binaryFile.read()
-    with open('Code/mnist/test_images.bin','rb') as binaryFile:
-        tstimgB = binaryFile.read()
-    with open('Code/mnist/test_labels.bin','rb') as binaryFile:
-        tstlbB = binaryFile.read()
-
-    train_x = np.reshape(np.frombuffer(imgB[16:16+784*nSamples], dtype=np.uint8), (nSamples,784))
-    train_y = np.frombuffer(lbB[8:nSamples+8], dtype=np.uint8)
-    test_x = np.reshape(np.frombuffer(tstimgB[16:16+784*nTests], dtype=np.uint8), (nTests,784))
-    test_y = np.frombuffer(tstlbB[8:nTests+8], dtype=np.uint8)
-
-    return train_x, train_y, test_x, test_y
-
-
 
 def printNumber(first_image):
     first_image = np.array(first_image, dtype='float')
@@ -57,7 +29,8 @@ def NNpredictor(test, ref, refLables, trueLables):  # No need for teslabels (not
         testLable = refLables[np.argmin(distance)]  # Index to lowest distance
         predictedLables.append(testLable)  # List with the
         """
-        if correctLable != testLable:
+        #fway of display different numbers that meet the requirement
+        if correctLable 1= testLable:
             print("Correct label", correctLable, " predicted lable: ", testLable)
             print(eucledianDistance(testPicture, ref[np.argmin(distance)]))
             printNumber(testPicture)
@@ -66,6 +39,17 @@ def NNpredictor(test, ref, refLables, trueLables):  # No need for teslabels (not
 
         i+=1
         """
+    return predictedLables
+
+def KNN(test, ref, testLables, refLables, k):
+    predictedLables = []
+    for testPicture in test:
+        distance = []  # Distance array, from testpic to all refpics
+        for refPicture in ref:
+            distance.append(eucledianDistance(refPicture, testPicture)) #distances
+        knnIndex = np.argpartition(distance,k)[:k] # List with index to k lowest distances
+        knnValue = np.take(refLables, knnIndex)
+        predictedLables.append(np.bincount(knnValue).argmax())  # Mode of KNN-list
     return predictedLables
 
 
@@ -89,10 +73,8 @@ def confusionMatrix(test, testLables, ref, refLables, k=0):
 
 def differenceImage(img1, img2):
     a = img1-img2 # Since we import uint8, this will give zero for img1[i]-img2[i] < 0
-    b = np.uint8(img1<img2) * 254 + 1 # Making array with
+    b = np.uint8(img1<img2) * 254 + 1 # smart trick
     return a*b
-
-#def sort()
 
 
 
@@ -125,21 +107,7 @@ def getClusters(ref, refLables, nClusters=64):
     return clusterData, clusterLables
 
 
-def KNN(test, ref, testLables, refLables, k):
-    predictedLables = []
-    for testPicture in test:
-        distance = []  # Distance array, from testpic to all refpics
-        #correctLable = trueLables[i]
-        for refPicture in ref:
-            distance.append(eucledianDistance(refPicture, testPicture)) #distances
-        knnIndex = np.argpartition(distance,k)[:k] # List with index to k lowest distances
-        knnValue = np.take(refLables, knnIndex)
-        #print(stats.mode(knnValue))
-        predictedLables.append(np.bincount(knnValue).argmax())  # Mode of KNN-list
-    return predictedLables
-
-#Saves 3d array to file
-
+#Saves array to file
 def saveFile(arr, name):
     np.save(name, arr)
 
@@ -147,9 +115,12 @@ def loadFile(name):
     loaded_arr = np.load(name)
     return loaded_arr
 
+#Starts timer
+t1 = time.time()
+
 #Load dataset (60000x28x28) 
 (train_x, train_y), (test_x, test_y) = mnist.load_data()
-#train_x, train_y, test_x, test_y = importBIN()
+
 
 #task 1
 #conMatrix, ER= confusionMatrix(test_x[:10], test_y[:10],  train_x, train_y,0)
@@ -166,17 +137,17 @@ nClusters = 64 # Number of clusters for each class
 clusterData = loadFile('clusterData.npy')
 clusterLables = loadFile('clusterLables.npy')
 
-printNumber(clusterData[129])
-printNumber(clusterData[140])
-printNumber(clusterData[180])
-printNumber(clusterData[170])
+#printNumber(clusterData[129])
+#printNumber(clusterData[140])
+#printNumber(clusterData[180])
+#printNumber(clusterData[170])
 
 
 
-#conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,1)
-#np.set_printoptions(precision=3)
-#print(conMatrix)
-#print("Error",ER)
+conMatrix, ER= confusionMatrix(test_x, test_y,  clusterData, clusterLables,2)
+np.set_printoptions(precision=3)
+print(conMatrix)
+print("Error",ER)
 
 
 #task 2c 
